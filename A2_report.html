@@ -1,0 +1,412 @@
+<!DOCTYPE HTML>
+<html lang="en">
+
+<head>
+	<title>Vis & Society Assignment 2</title>
+	<link rel="stylesheet" href="https://vis-society.github.io/assignments/report.css" />
+</head>
+
+<body>
+	<header>
+		<h1>
+			<small>Assignment 2</small>
+			Exploratory Data Analysis
+		</h1>
+
+		<p>
+			<strong>Yu He</strong> — <em>yh527@mit.edu</em>
+		</p>
+	</header>
+	<main>
+		<section>
+			<h2>Data Overview</h2>
+
+			<p>The dataset that I used is created from MAPC’s Zoning Atlas. It provides spatial and tabular data on zoning
+				regulations in
+				Metro Boston municipalities. It also categorizes zoning into two primary types: <strong>single-family exclusive
+					zoning</strong> and <strong>mixed-use or multi-family zoning</strong>. Additionally, it aggregates demographic
+				and socioeconomic data from the 2010 US Census and the 2014-2018 American Community Survey.</p>
+
+			<h3>Dataset Structure</h3>
+			<p>The dataset contains zoning, demographic, and economic attributes for 101 municipalities in Metro Boston. Each
+				municipality has two potential rows: one for single-family zoning and one for other housing types. Key fields
+				include:</p>
+
+			<ul>
+				<li><strong>muni_id</strong> - Unique identifier for each municipality.</li>
+				<li><strong>muni</strong> - Municipality name.</li>
+				<li><strong>only_single_family</strong> - Indicates whether the zoning is exclusive to single-family homes (1)
+					or allows other housing types (0).</li>
+				<li><strong>%_single_family</strong> - Percentage of residential land dedicated to single-family zoning.</li>
+				<li><strong>is_MBTA_community</strong> - Indicates if the municipality is part of the MBTA Communities Act (1 =
+					Yes, 0 = No).</li>
+			</ul>
+
+			<h3>Demographic & Socioeconomic Fields</h3>
+			<p>Aggregated from Census data, the dataset includes:</p>
+			<ul>
+				<li><strong>pop</strong> - Total population.</li>
+				<li><strong>pop_u18</strong> - Population under 18 years.</li>
+				<li><strong>pop_18_64</strong> - Population aged 18-64 years.</li>
+				<li><strong>pop_65o</strong> - Population 65 and over.</li>
+				<li><strong>nhwhi, nhaa, nhas, lat</strong> - Racial composition data (Non-Hispanic White, Black, Asian,
+					Hispanic/Latino).</li>
+				<li><strong>hh</strong> - Total households.</li>
+				<li><strong>Income Brackets</strong> - Household income distribution, from < $10,000 to> $200,000.</li>
+			</ul>
+
+			<h3>Data Quality Assessment</h3>
+			<p>A thorough review of the dataset reveals the following potential data quality issues:</p>
+			<ul>
+				<li><strong>Missing Data for Small Zoning Areas</strong>: Some small municipalities may have incomplete zoning
+					or demographic data, especially in cases where zoning boundaries do not align perfectly with census block
+					groups.</li>
+				<li><strong>Data Aggregation Impact</strong>: Since each municipality has two rows (one for single-family zoning
+					and one for other housing types), summing percentages incorrectly could lead to values over 100%, requiring
+					careful aggregation.</li>
+				<li><strong>Unexpected 0% Single-Family Zoning</strong>: Some cities, such as Boston and Somerville, are
+					reported as having 0% single-family zoning. However, we know these areas contain single-family homes. This may
+					indicate that the dataset omits small single-family zones or that calculations for zoning proportions require
+					adjustments.</li>
+				<li><strong>Year Discrepancies</strong>: Census demographic data is from 2010, while income data is from
+					2014-2018. The dataset does not account for changes over time, which could impact the accuracy of
+					affordability analysis.</li>
+				<li><strong>Land Area Availability</strong>: The dataset does not explicitly provide the total land area for
+					each municipality’s zoning categories, which may require further calculations to assess density accurately.
+				</li>
+			</ul>
+
+			<h3>Conclusion</h3>
+			<p>Overall, this dataset provides a rich source of information for analyzing zoning regulations and their effects
+				on housing supply, affordability, and demographics. However, careful handling of data aggregation, missing
+				values, and unexpected results (such as 0% single-family zoning for some cities) is necessary to ensure accurate
+				analysis.</p>
+		</section>
+
+
+		<section>
+			<h2>Subtheme: Zoning and Housing Supply</h2>
+
+			<h3>Overall Analysis Questions</h3>
+			<ol>
+				<li><strong>How do zoning restrictions vary across Metro Boston municipalities, and which towns have the most
+						exclusionary zoning?</strong></li>
+				<p><strong>Motivation:</strong> My family lives in Medford, where most homes are single-family residences, and I
+					am curious to see how other towns—such as Cambridge, Somerville, Newton, and Boston—compare in terms of zoning
+					regulations. Are these areas similarly restrictive, or do some allow for more diverse housing types, such as
+					multi-family buildings and apartments? The <em>City Observatory</em> article on Somerville noted that only 22
+					existing buildings would comply with modern zoning laws, raising the question of how common such restrictive
+					policies are across Metro Boston.</p>
+				<p><strong>Sources:</strong> "The Illegal City of Somerville" (City Observatory), Metro Boston zoning dataset
+				</p>
+
+				<li><strong>How do zoning regulations impact the supply and affordability of housing in Metro Boston?</strong>
+				</li>
+				<p><strong>Motivation:</strong> The housing market is highly dynamic according to our family buying the house
+					years ago.
+					The same house can have very different price offers in different times and under different circumstances.
+					I want to explore how zoning restrictions affect supply and demand. Given the high cost of housing in Boston,
+					does restrictive zoning
+					contribute to a housing shortage, making homes less affordable? Additionally, who are the typical buyers in
+					Boston, and do current zoning policies align with the housing needs of residents? The <em>Affordable Homes
+						Act</em> states that Massachusetts needs 200,000 more housing units by 2030, suggesting that current zoning
+					laws might be a major barrier to achieving this goal.</p>
+				<p><strong>Sources:</strong> Affordable Homes Act, "Minneapolis Land Use Reforms Offer a Blueprint for Housing
+					Affordability"</p>
+
+				<li><strong>What proportion of existing buildings in Metro Boston do not comply with current zoning laws, and
+						what does this reveal about the rigidity of zoning regulations?</strong></li>
+				<p><strong>Motivation:</strong> The <em>Somerville zoning study</em> found that the vast majority of buildings
+					would be illegal under current zoning laws. This raises the question of whether other towns also have high
+					rates of non-compliant properties, indicating that zoning laws may be outdated or overly restrictive.
+					Understanding how many existing buildings wouldn’t be allowed today could provide a data-driven argument for
+					zoning reform, particularly against common pushbacks like preserving “historical character” or avoiding
+					“overcrowding.”</p>
+				<p><strong>Sources:</strong> "The Illegal City of Somerville" (City Observatory), Metro Boston zoning compliance
+					dataset</p>
+			</ol>
+		</section>
+
+		<section>
+			<h2>Discoveries & Insights</h2>
+
+			<figure>
+				<img src="./1.png" alt="Land Zones Exclusive for Single-Family Housing by Municipality"
+					style="width: 96%; height: auto;" />
+				<figcaption>
+					<strong>Percentage of Land Zoned Exclusively for Single-Family Housing by Municipality</strong><br>
+					This bar chart visualizes the percentage of land exclusively zoned for single-family housing across
+					municipalities in Metro Boston. The data reveals stark zoning disparities, with some municipalities (e.g.,
+					Weston, Waban, Hopkinton) having nearly 100% of their residential land dedicated to single-family homes, while
+					others (e.g., Boston, Cambridge, Chelsea, Somerville) have close to 0% single-family zoning.<br><br>
+
+					One key insight is that suburban municipalities tend to have more restrictive zoning, favoring single-family
+					homes over multi-family or mixed-use housing. This aligns with historical trends of exclusionary zoning
+					policies, which have contributed to low population density, high housing costs, and limited housing supply in
+					these areas. Conversely, urban municipalities with high population densities have more flexible zoning laws
+					that allow for a mix of housing types.<br><br>
+
+					<strong>Follow-up Questions:</strong>
+					<ul>
+						<li>Why do some municipalities have 100% single-family zoning while others have close to 0%?
+							<ul>
+								<li>What historical or policy-driven factors led to this stark contrast?</li>
+							</ul>
+						</li>
+						<li>How does population density compare across municipalities with different zoning policies?</li>
+						<li>How has zoning changed over time in these municipalities?</li>
+					</ul>
+
+					This initial basic visualization raises important questions about housing affordability, population density,
+					and zoning
+					reform in Metro Boston. If municipalities with high single-family zoning do not adapt, they may struggle to
+					meet growing housing demand and affordability goals.
+				</figcaption>
+			</figure>
+
+
+			<figure>
+				<img src="./2.png" alt="Scatter Plot of % Exclusive Single-Family Zoning on Population Across Metro Boston"
+					style="width: 95%; height: auto;" />
+				<figcaption>
+					<strong>Scatter Plot of % Exclusive Single-Family Zoning on Population Across Metro Boston</strong><br>
+					This scatter plot examines the relationship between the percentage of land exclusively zoned for single-family
+					housing and total population across Metro Boston municipalities. The chart suggests a negative correlation
+					between single-family zoning and population—municipalities with high single-family zoning percentages
+					generally have lower total populations, while cities with more flexible zoning (e.g., Boston and Malden) tend
+					to accommodate much larger populations.<br><br>
+
+					Key Insights:
+					<ul>
+						<li>Municipalities such as Weston, Wenham, and Nahant have 100% single-family zoning but relatively small
+							populations.</li>
+						<li>Cities like Boston, Malden, and Medway have low single-family zoning percentages and significantly
+							larger populations.</li>
+						<li>Many towns clustered at high single-family zoning percentages appear to have lower population figures,
+							suggesting that restrictive zoning policies may contribute to lower housing density.</li>
+						<li>However, there are some outliers, such as Salem, which has a mid-range population despite a relatively
+							high single-family zoning percentage.</li>
+					</ul>
+
+					<strong>Follow-up Questions:</strong>
+					<ul>
+						<li>Is there any causal relationship between a town having low/high population and having small/large
+							proportion of land exclusive for single-family housing? If so, which causes which?</li>
+						<li>Are municipalities with high single-family zoning percentages also experiencing higher home prices and
+							limited rental availability?</li>
+						<li>How do zoning regulations interact with economic factors such as median household income and
+							homeownership rates?</li>
+					</ul>
+
+					The findings from this visualization reinforce the idea that zoning regulations might have effects on
+					housing supply and population density. If municipalities with restrictive zoning continue limiting housing
+					development, they may struggle to accommodate future population growth and housing demand.
+				</figcaption>
+			</figure>
+
+
+			<figure>
+				<img src="./3.png" alt="Treemap of Percentage of Households with Income Over $100K by Municipality"
+					style="width: 90%; height: auto;" />
+				<figcaption>
+					<strong>Treemap of Percentage of Households with Income Over $100K by Municipality</strong><br>
+					This treemap visualizes the percentage of households earning over $100,000 across Metro Boston municipalities.
+					The size of each block represents the relative proportion of high-income households in that
+					municipality.<br><br>
+
+					Key Insights:
+					<ul>
+						<li>Some towns, such as Needham, Shernborn, and Sherborn, have a high percentage of households earning over
+							$100K, reflecting their affluent demographics.</li>
+						<li>Suburban towns generally show a higher concentration of high-income households, while populated cities
+							like Boston
+							and Everett have smaller proportions of wealthy households.</li>
+					</ul>
+
+					<strong>Follow-up Questions:</strong>
+					<ul>
+						<li>How does the percentage of high-income households correlate with zoning policies (single-family vs.
+							mixed zoning)?</li>
+					</ul>
+
+					As a deeper step to probe the relationship between income and housing policies, this visualization underscores
+					the economic disparities in Metro Boston and raises important questions about
+					income-based housing segregation. Further analysis can help identify whether zoning laws and housing policies
+					contribute to these economic divides.
+				</figcaption>
+			</figure>
+
+			<figure>
+				<img src="./4.png"
+					alt="Scatter Plot of % of Households Earning Over $100K vs. % Single-Family Zoning by Municipality"
+					style="width: 90%; height: auto;" />
+				<figcaption>
+					<strong>Scatter Plot of % of Households Earning Over $100K vs. % Single-Family Zoning by
+						Municipality</strong><br>
+					This scatter plot explores the relationship between the percentage of households earning over $100K and the
+					percentage of land zoned exclusively for single-family housing across Metro Boston municipalities. The trend
+					line suggests a positive correlation, indicating that municipalities with a higher proportion of single-family
+					zoning tend to have a greater share of high-income households.<br><br>
+
+					Key Insights:
+					<ul>
+						<li>Municipalities with close to 100% single-family zoning, such as Weston, Lincoln, and Sherborn, have a
+							high percentage of households earning over $100K.</li>
+						<li>Conversely, cities with lower single-family zoning percentages, such as Chelsea, Revere, and Gloucester,
+							tend to have a lower share of high-income households.</li>
+						<li>The trend line suggests that restrictive zoning may contribute to income segregation, reinforcing
+							economic disparities by limiting access to more affordable housing options.</li>
+						<li>There are some outliers, such as Watertown and Beverly, which has a high percentage of high-income
+							households despite
+							not having the highest single-family zoning rate.</li>
+					</ul>
+
+					<strong>Follow-up Questions:</strong>
+					<ul>
+						<li>Is there a direct causal relationship between restrictive zoning policies and income segregation, or are
+							there other influencing factors such as school districts and property taxes?</li>
+						<li>How do home prices compare across municipalities with different levels of single-family zoning?</li>
+						<li>Are municipalities with high-income households also experiencing greater resistance to zoning reform?
+						</li>
+						<li>What role does access to public transportation play in shaping the income distribution of municipalities
+							with lower single-family zoning rates?</li>
+					</ul>
+
+					Figure 4 suggests to us that zoning policies may reinforce economic divisions, potentially limiting
+					housing accessibility for lower-income families in areas dominated by single-family zoning. Further
+					investigation into housing affordability and policy interventions could provide deeper insights into solutions
+					for more equitable housing development.
+				</figcaption>
+			</figure>
+
+
+			<figure>
+				<img src="./5.png" alt="Proportion of Population Under Age 18 and Over Age 65 by Municipality"
+					style="width: 96%; height: auto;" />
+				<figcaption>
+					<strong>Proportion of Population Aged 65 and Over by Municipality</strong><br>
+					This bar chart highlights the percentage of residents aged 65 and older across Metro Boston municipalities.
+					Aging populations have distinct housing needs, including access to senior-friendly housing, healthcare
+					facilities, and public transportation.<br><br>
+
+					Key Insights:
+					<ul>
+						<li>Municipalities such as Medford, Somerville, and Quincy have the highest proportions of elderly
+							residents.</li>
+						<li>Some suburban towns with restrictive zoning policies may struggle to provide adequate senior housing
+							options, potentially leading to displacement.</li>
+						<li>Through comparing with figure 1 and figure 3, we can find that top towns with elder population tend to
+							be listed on top in terms of household incoming of over 100k and relatively low restriction on land
+							exclusive for single-family house (like Medford and Quincy). Our initial hypothesis without further causal
+							analysis for this phenomenon is that in the Metro Boston area, the elder population likes to live in
+							wealthier neighborhood because they tend to have more savings. Moreover, elder population prefers to live
+							in suburban areas because they care much less for transportation and likes living in more seclusive parts
+							of the city </li>
+					</ul>
+				</figcaption>
+			</figure>
+
+			<figure>
+				<img src="./6.png" alt="Proportion of Population Aged 65 and Over by Municipality"
+					style="width: 96%; height: auto;" />
+				<figcaption>
+					<strong>Proportion of Population Under Age 18 and Over Age 65 by Municipality</strong><br>
+					This bar chart presents the proportion of residents who are either over 18 and and 65 across Metro Boston
+					municipalities. These two age groups often have distinct housing needs and can influence local zoning policies
+					and public resource allocation.<br><br>
+
+					Key Insights:
+					<ul>
+						<li>Municipalities such as Winthrop, Weymouth, and Ashland have the highest proportions of residents in the
+							18-65 age group, indicating that these areas may have a relatively lower number of dependent populations
+							(children and seniors) compared to other municipalities. Since the 18-65 population generally consists of
+							working professionals and families in their prime earning years, the economic activity and housing demand
+							in these areas may differ from municipalities with higher proportions of children or retirees.
+							Interestingly, these towns remain relatively more affordable, according to Zillow, despite having less
+							developed public transportation and fewer public amenities compared to areas with a more balanced or aging
+							population.
+
+							One hypothesis is that these municipalities may have zoning policies that favor single-family housing and
+							lower population density, making housing prices more stable and affordable for middle-income earners but
+							potentially limiting opportunities for younger professionals or lower-income workers to move in.
+							Additionally, the concentration of working-age residents may also indicate fewer retirement communities or
+							limited senior housing options, discouraging older adults from staying in these areas as they age. Future
+							research could explore whether more mixed-use developments and transit-oriented housing in these towns
+							could improve affordability and public infrastructure while supporting a growing working-age population.
+						</li>
+					</ul>
+
+					This visualization suggests that municipalities with high percentages of youth and elderly populations may
+					have specific housing and infrastructure needs that should be considered in zoning reform discussions.
+				</figcaption>
+			</figure>
+		</section>
+
+		<section>
+			<h2>Summary & Conclusion</h2>
+
+			<p>
+				This exploratory analysis of zoning regulations, income distribution, and demographic trends in Metro Boston
+				municipalities highlights key insights into how zoning policies shape economic and social structures. The
+				findings
+				suggest that municipalities with restrictive single-family zoning tend to have higher household incomes, lower
+				population densities, and a greater concentration of elderly residents. In contrast, municipalities with more
+				flexible
+				zoning policies exhibit greater economic and demographic diversity, with higher population densities and a
+				broader
+				range of income levels.
+			</p>
+
+			<p>
+				One of the most striking patterns observed is the correlation between exclusionary zoning and economic
+				segregation.
+				Municipalities that dedicate a high percentage of their residential land to single-family homes often exhibit
+				higher
+				median household incomes and a lack of affordable housing options. This supports the hypothesis that restrictive
+				zoning
+				policies contribute to wealth concentration and reduced housing accessibility for lower-income and younger
+				residents.
+			</p>
+
+			<p>
+				Additionally, the analysis of age distribution across municipalities suggests that zoning laws may inadvertently
+				influence where different age groups reside. Municipalities with higher proportions of elderly residents often
+				have
+				more single-family zoning, potentially limiting housing options for younger professionals and families.
+				Conversely,
+				areas with higher working-age populations tend to have more mixed-use or multi-family housing, possibly due to
+				better
+				job accessibility and transit-oriented development.
+			</p>
+
+			<p>
+				These insights raise important questions for future research and policy discussions. Should zoning laws be
+				reformed
+				to promote greater housing diversity and affordability? How can municipalities balance the need to preserve
+				neighborhood
+				character while ensuring equitable access to housing? Further analysis of housing costs, public transportation
+				access,
+				and legislative efforts could provide additional guidance on potential policy reforms.
+			</p>
+
+			<p>
+				Overall, we can see the need for data-driven decision-making in Metro Boston's urban planning. If municipalities
+				in
+				Metro Boston seek to address housing affordability and socioeconomic segregation, better zoning reform should be
+				a
+				critical
+				component of their strategy.
+			</p>
+		</section>
+
+		<section>
+			<h2>Acknowledgment of GPT Use</h2>
+
+			<p>
+				I used GPT to brainstorm visualization formats and occasionally refine language clarity. All interpretations,
+				analyses, and
+				conclusions are original and grounded in the dataset provided.
+			</p>
+		</section>
+
+</html>
